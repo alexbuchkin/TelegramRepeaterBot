@@ -42,8 +42,7 @@ class RepeaterBot:
         message_list = [item['message'] for item in response_json['result'] if item.get('message')]
         return [
             {
-                'text': message['text'],
-                'has_entities': bool(message.get('entities')),
+                'text': message.get('text', 'This message has no text'),
                 'chat_id': message['chat']['id'],
                 'ts': message['date'],
             }
@@ -81,7 +80,7 @@ class RepeaterBot:
             for message in new_messages:
                 self.send_message(
                     chat_id=message['chat_id'],
-                    text='This message has entities' if message['has_entities'] else message['text'],
+                    text=message['text'],
                 )
 
             self.update_last_ts(new_messages)
