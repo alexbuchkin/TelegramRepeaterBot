@@ -39,7 +39,7 @@ class RepeaterBot:
         if not response_json.get('ok') or \
            not response_json.get('result'):
             return []
-        message_list = [item['message'] for item in response_json['result'] if item.get('message')]
+        message_list = (item['message'] for item in response_json['result'] if item.get('message'))
         return [
             {
                 'text': message.get('text', 'This message has no text'),
@@ -54,12 +54,10 @@ class RepeaterBot:
         self,
         messages,
     ):
-        new_ts = max((
+        self.last_update_ts = max((
             self.last_update_ts,
             *(item['ts'] for item in messages)
         ))
-        if new_ts > self.last_update_ts:
-            self.last_update_ts = new_ts
 
     def send_message(
         self,
