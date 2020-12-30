@@ -55,7 +55,7 @@ class RepeaterBot:
                 '''
             )
             result = cursor.fetchone()
-            self.last_update_ts = result[0] if result else 0
+            self.last_update_ts = result[0] or 0
         logging.info('last_update_ts is set to {}'.format(str(self.last_update_ts)))
 
     def send_update_request(
