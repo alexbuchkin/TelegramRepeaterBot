@@ -56,12 +56,12 @@ class RepeaterBot:
             )
             result = cursor.fetchone()
             self.last_update_ts = result[0] or 0
-        logging.info('last_update_ts is set to {}'.format(str(self.last_update_ts)))
+        logging.info(f'last_update_ts is set to {self.last_update_ts}')
 
     def send_update_request(
         self,
     ):
-        logging.info('Sending request to: {}'.format(self.update_request_url))
+        logging.info(f'Sending request to: {self.update_request_url}')
         response = requests.get(
             url=self.update_request_url,
         )
@@ -110,7 +110,7 @@ class RepeaterBot:
         text,
     ):
         text = text or 'This message has no text'
-        logging.info('Sending message "{}" to chat_id "{}"'.format(text, str(chat_id)))
+        logging.info(f'Sending message "{text}" to chat_id "{chat_id}"')
         requests.get(
             url=self.send_message_url,
             params={
@@ -142,7 +142,7 @@ class RepeaterBot:
     def loop(self):
         while True:
             new_messages = self.get_new_messages(self.send_update_request())
-            logging.info('{} new messages'.format(str(len(new_messages))))
+            logging.info(f'{len(new_messages)} new messages received')
 
             for message in new_messages:
                 self.send_message(
