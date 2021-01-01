@@ -162,12 +162,6 @@ class RepeaterBot:
 
             time.sleep(1)
 
-    def __exit__(self):
-        self.cursor.close()
-        self.conn.close()
-
-        logging.info('Disconnected from database')
-
 
 @click.command()
 @click.option(
