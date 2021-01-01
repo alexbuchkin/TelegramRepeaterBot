@@ -1,11 +1,11 @@
 import click
 import json
-import requests
-import sys
-import time
-
 import logging
 import psycopg2
+import requests
+import signal
+import sys
+import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -57,6 +57,11 @@ class RepeaterBot:
             result = cursor.fetchone()
             self.last_update_ts = result[0] or 0
         logging.info(f'last_update_ts is set to {self.last_update_ts}')
+
+        self.is_working = True
+        signal.signal(signal.SIGTERM, self.on_sigterm)
+        signal.signal(signal.SIGINT, self.on_sigterm)
+
 
     def send_update_request(
         self,
@@ -142,7 +147,7 @@ class RepeaterBot:
             logging.info(f'Message has been added to db, it took {time.time() - time_before_adding} s')
 
     def loop(self):
-        while True:
+        while self.is_working:
             new_messages = self.get_new_messages(self.send_update_request())
             logging.info(f'{len(new_messages)} new messages received')
 
@@ -161,6 +166,13 @@ class RepeaterBot:
             self.update_last_ts(new_messages)
 
             time.sleep(1)
+
+        self.conn.close()
+        logging.info('Disconnected from database')
+
+
+    def on_sigterm(self, *args):
+        self.is_working = False
 
 
 @click.command()
