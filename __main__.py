@@ -232,12 +232,13 @@ def main(
     }
 
     logging.info('Creating bot')
+    time_before_creating_bot = time.time()
     bot = RepeaterBot(
         token=bot_token,
         database_url=database_url,
         database_settings=database_settings,
     )
-    logging.info('Bot has been created')
+    logging.info(f'Bot has been created, it took {time.time() - time_before_creating_bot} s')
 
     bot.loop()
 
