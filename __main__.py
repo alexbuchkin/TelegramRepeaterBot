@@ -38,7 +38,7 @@ class RepeaterBot:
                 '''
                 CREATE TABLE IF NOT EXISTS messages
                 (
-                    message VARCHAR(1000),
+                    message VARCHAR(4096),
                     chat_id BIGINT NOT NULL,
                     ts BIGINT NOT NULL
                 );
@@ -132,7 +132,7 @@ class RepeaterBot:
                 VALUES (%(message)s, %(chat_id)s, %(ts)s);
                 ''',
                 {
-                    'message': text[:1000] if text else None,
+                    'message': text,
                     'chat_id': chat_id,
                     'ts': ts,
                 }
