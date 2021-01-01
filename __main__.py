@@ -79,11 +79,11 @@ class RepeaterBot:
         response_json,
     ):
         if not response_json.get('ok') or \
-           not response_json.get('result'):
+           'result' not in response_json:
             logging.info('"result" or "ok" is not valid')
             return []
 
-        message_list = (item['message'] for item in response_json['result'] if item.get('message'))
+        received_messages = (item['message'] for item in response_json['result'] if item.get('message'))
 
         return [
             {
@@ -91,7 +91,7 @@ class RepeaterBot:
                 'chat_id': message['chat']['id'],
                 'ts': message['date'],
             }
-            for message in message_list
+            for message in received_messages
             if message['date'] > self.last_update_ts
         ]
 
