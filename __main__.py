@@ -126,6 +126,7 @@ class RepeaterBot:
         ts,
     ):
         with self.conn.cursor() as cursor:
+            time_before_adding = time.time()
             cursor.execute(
                 '''
                 INSERT INTO messages
@@ -138,6 +139,7 @@ class RepeaterBot:
                 }
             )
             self.conn.commit()
+            logging.info(f'Message has been added to db, it took {time.time() - time_before_adding} s')
 
     def loop(self):
         while True:
