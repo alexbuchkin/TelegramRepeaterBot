@@ -14,20 +14,11 @@ class RepeaterBot:
         self,
         token,
         database_url,
-        database_settings,
     ):
         self.update_request_url = constants.GET_UPDATES_URL.format(token=token)
         self.send_message_url = constants.SEND_MESSAGE_URL.format(token=token)
 
-        if database_url:
-            self.conn = psycopg2.connect(database_url)
-        else:
-            if any((not value for value in database_settings.values())):
-                raise KeyError(
-                    'Some fields from database settings are missing'
-                )
-            self.conn = psycopg2.connect(**database_settings)
-
+        self.conn = psycopg2.connect(database_url)
         logging.info('Connected to database')
 
         with self.conn.cursor() as cursor:
