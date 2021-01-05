@@ -111,13 +111,14 @@ class RepeaterBot:
     ):
         text = text or 'This message has no text'
         logging.info(f'Sending message "{text}" to chat_id "{chat_id}"')
-        requests.get(
+        response = requests.get(
             url=self.send_message_url,
             params={
                 'chat_id': chat_id,
                 'text': text,
             },
         )
+        response.raise_for_status()
 
     def store_message(
         self,
