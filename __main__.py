@@ -70,7 +70,10 @@ def main(
         database_url=database_url,
         database_settings=database_settings,
     )
-    logging.info(f'Bot has been created, it took {time.time() - time_before_creating_bot} s')
+    logging.info(
+        'Bot has been created, it took '
+        f'{time.time() - time_before_creating_bot} s'
+    )
 
     bot.loop()
 

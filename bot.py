@@ -23,7 +23,9 @@ class RepeaterBot:
             self.conn = psycopg2.connect(database_url)
         else:
             if any((not value for value in database_settings.values())):
-                raise KeyError('Some fields from database settings are missing')
+                raise KeyError(
+                    'Some fields from database settings are missing'
+                )
             self.conn = psycopg2.connect(**database_settings)
 
         logging.info('Connected to database')
@@ -57,7 +59,6 @@ class RepeaterBot:
         signal.signal(signal.SIGTERM, self.on_sigterm)
         signal.signal(signal.SIGINT, self.on_sigterm)
 
-
     def send_update_request(
         self,
     ):
@@ -83,7 +84,11 @@ class RepeaterBot:
             logging.info('"result" or "ok" is not valid')
             return []
 
-        received_messages = (item['message'] for item in response_json['result'] if item.get('message'))
+        received_messages = (
+            item['message']
+            for item in response_json['result']
+            if item.get('message')
+        )
 
         return [
             {
@@ -140,10 +145,14 @@ class RepeaterBot:
                 }
             )
             self.conn.commit()
-            logging.info(f'Message has been added to db, it took {time.time() - time_before_adding} s')
+            logging.info(
+                'Message has been added to db, it took '
+                f'{time.time() - time_before_adding} s'
+            )
 
     def loop(self):
         while self.is_working:
+
             new_messages = self.get_new_messages(self.send_update_request())
             logging.info(f'{len(new_messages)} new messages received')
 
@@ -165,7 +174,6 @@ class RepeaterBot:
 
         self.conn.close()
         logging.info('Disconnected from database')
-
 
     def on_sigterm(self, *args):
         self.is_working = False
