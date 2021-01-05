@@ -72,7 +72,7 @@ class RepeaterBot:
             return response.json()
         except ValueError:
             logging.info('responsing json is not valid')
-            return {}
+            return dict()
 
     def get_new_messages(
         self,
