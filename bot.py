@@ -1,9 +1,9 @@
-import psycopg2
 import requests
 import signal
 import time
 
 import constants
+from database import DatabaseHolder
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -18,32 +18,10 @@ class RepeaterBot:
         self.update_request_url = constants.GET_UPDATES_URL.format(token=token)
         self.send_message_url = constants.SEND_MESSAGE_URL.format(token=token)
 
-        self.conn = psycopg2.connect(database_url)
+        self.database = DatabaseHolder(database_url)
         logging.info('Connected to database')
 
-        with self.conn.cursor() as cursor:
-            cursor.execute(
-                '''
-                CREATE TABLE IF NOT EXISTS messages
-                (
-                    message VARCHAR(4096),
-                    chat_id BIGINT NOT NULL,
-                    ts BIGINT NOT NULL
-                );
-                '''
-            )
-            self.conn.commit()
-            logging.info('Table has been created')
-
-        with self.conn.cursor() as cursor:
-            cursor.execute(
-                '''
-                SELECT MAX(ts)
-                FROM messages;
-                '''
-            )
-            result = cursor.fetchone()
-            self.last_update_ts = result[0] or 0
+        self.last_update_ts = self.database.get_last_update_ts()
         logging.info(f'last_update_ts is set to {self.last_update_ts}')
 
         self.is_working = True
@@ -116,31 +94,6 @@ class RepeaterBot:
         )
         response.raise_for_status()
 
-    def store_message(
-        self,
-        chat_id,
-        text,
-        ts,
-    ):
-        with self.conn.cursor() as cursor:
-            time_before_adding = time.time()
-            cursor.execute(
-                '''
-                INSERT INTO messages
-                VALUES (%(message)s, %(chat_id)s, %(ts)s);
-                ''',
-                {
-                    'message': text,
-                    'chat_id': chat_id,
-                    'ts': ts,
-                }
-            )
-            self.conn.commit()
-            logging.info(
-                'Message has been added to db, it took '
-                f'{time.time() - time_before_adding} s'
-            )
-
     def loop(self):
         while self.is_working:
 
@@ -153,7 +106,7 @@ class RepeaterBot:
                     text=message['text'],
                 )
 
-                self.store_message(
+                self.database.store_message(
                     chat_id=message['chat_id'],
                     text=message['text'],
                     ts=message['ts'],
@@ -162,9 +115,6 @@ class RepeaterBot:
             self.update_last_ts(new_messages)
 
             time.sleep(1)
-
-        self.conn.close()
-        logging.info('Disconnected from database')
 
     def on_sigterm(self, *args):
         self.is_working = False
