@@ -1,10 +1,7 @@
 import time
 
+import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, BigInteger
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import func
 
 from constants import MAX_MESSAGE_LENGTH
 
@@ -17,11 +14,11 @@ Base = declarative_base()
 class Message(Base):
     __tablename__ = 'messages'
 
-    message = Column(String(MAX_MESSAGE_LENGTH))
-    chat_id = Column(BigInteger, nullable=False)
+    message = sa.Column(sa.String(MAX_MESSAGE_LENGTH))
+    chat_id = sa.Column(sa.BigInteger, nullable=False)
 
     # Костыль! Добавить Sequence в качестве primary_key
-    ts = Column(BigInteger, primary_key=True)
+    ts = sa.Column(sa.BigInteger, primary_key=True)
 
     def __repr__(self):
         # return f'<User(name='], fullname='%s', nickname='%s')>'
@@ -41,12 +38,12 @@ class DatabaseHolder:
         self,
         database_url,
     ):
-        self.engine = create_engine(database_url, echo=True)
-        self.session = sessionmaker(bind=self.engine)()
+        self.engine = sa.create_engine(database_url, echo=True)
+        self.session = sa.orm.sessionmaker(bind=self.engine)()
 
     def get_last_update_ts(self):
         last_update_ts = self.session.query(
-            func.max(Message.ts)
+            sa.func.max(Message.ts)
         ).first()[0]
 
         return last_update_ts or 0
