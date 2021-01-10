@@ -3,7 +3,10 @@ import time
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
 
-from constants import MAX_MESSAGE_LENGTH
+from constants import (
+    MAX_MESSAGE_LENGTH,
+    MESSAGE_SEQ_NAME,
+)
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -14,17 +17,21 @@ Base = declarative_base()
 class Message(Base):
     __tablename__ = 'messages'
 
-    message = sa.Column(sa.String(MAX_MESSAGE_LENGTH))
+    pk_id = sa.Column(
+        sa.Integer,
+        sa.Sequence(MESSAGE_SEQ_NAME),
+        primary_key=True,
+    )
+    text = sa.Column(sa.String(MAX_MESSAGE_LENGTH))
     chat_id = sa.Column(sa.BigInteger, nullable=False)
-
-    # Костыль! Добавить Sequence в качестве primary_key
-    ts = sa.Column(sa.BigInteger, primary_key=True)
+    ts = sa.Column(sa.BigInteger, nullable=False)
 
     def __repr__(self):
-        # return f'<User(name='], fullname='%s', nickname='%s')>'
         return (
             '<Message('
-            f'message="{self.message}"'
+            f'pk_id="{self.pk_id}"'
+            ', '
+            f'text="{self.text}"'
             ', '
             f'chat_id="{self.chat_id}"'
             ', '
@@ -57,7 +64,7 @@ class DatabaseHolder:
         time_before_adding = time.time()
 
         new_message = Message(
-            message=text,
+            text=text,
             chat_id=chat_id,
             ts=ts,
         )
